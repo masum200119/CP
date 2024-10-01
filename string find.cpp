@@ -1,28 +1,46 @@
 class Solution {
 public:
-    unordered_map<string , int> st;
-
-    bool check(string word){
-        for(int i=1 ; i<=word.size() ; i++){
-            string prefix = word.substr(0 , i);
-            string suffix = word.substr(i , word.size()-i);
-    
-            if(st[prefix] != 0 && (st[suffix] != 0 || check(suffix))){
-                return true;
-            } 
+    vector<string> findAllConcatenatedWordsInADict(vector<string>& words) 
+    {
+        unordered_map<string,bool>existsinwords;
+        for(auto j:words)
+        {
+            existsinwords[j]=true;
         }
-        return false;
-    }
-    vector<string> findAllConcatenatedWordsInADict(vector<string>& words) {
-        vector<string> ans;
-        
-        for(auto word : words){
-            st[word]++;
-        }
-
-        for(auto word : words){
-            if(check(word)){
-                ans.push_back(word);
+        vector<string>ans;
+        for(int i=0;i<words.size();i++)
+        {
+            bool partitionreachedend=false;
+            //string: cat, partitions:|c|a|t|
+            queue<int>checkfor;
+            unordered_set<int>alreadypushedinqueue;
+            checkfor.push(-1);
+            while(!checkfor.empty())
+            {
+                int indexofword=checkfor.front();
+                checkfor.pop();
+                if(indexofword==(words[i].size()-1))
+                {
+                    partitionreachedend=true;
+                    break;
+                }
+                string str;
+                for(int j=indexofword+1;j<words[i].size();j++)
+                {
+                    str.push_back(words[i][j]);
+                    if(existsinwords[str] && (j-indexofword)!=words[i].size())
+                    {
+                        if(alreadypushedinqueue.count(j)==0)
+                        {
+                            checkfor.push(j);
+                            alreadypushedinqueue.insert(j);
+                        }
+                    }
+                }
+            }
+            if(partitionreachedend)
+            {
+                ans.push_back(words[i]);
             }
         }
         return ans;
